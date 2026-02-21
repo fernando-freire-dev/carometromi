@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Sistema Escolar</title>
+</head>
+<body>
+
+  <h2>Painel do Sistema Escolar</h2>
+  <button onclick="logout()">Sair</button>
+
+  <div id="conteudo"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabase = window.supabase.createClient(
+      "https://ktokzupvbzgvrlmukyow.supabase.co",
+      "sb_publishable_cIHQLm1L_KAvvf1CrENu0w_QdgyNVjO"
+    );
+
+    async function verificarLogin() {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        window.location.href = "index.html";
+      }
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      window.location.href = "index.html";
+    }
+
+    verificarLogin();
+  </script>
+
+</body>
+</html>
