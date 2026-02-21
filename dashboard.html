@@ -139,21 +139,23 @@
 
   data.forEach(aluno => {
     html += `
-      <tr>
-        <td>${aluno.ra}</td>
-        <td>${aluno.nome}</td>
-        <td>${aluno.ensino}</td>
-        <td>${aluno.turma}</td>
-        <td class="${aluno.status === 'ativo' ? 'ativo' : 'inativo'}">
-          ${aluno.status}
-        </td>
-        <td>
-          <button onclick="alterarStatus('${aluno.ra}', '${aluno.status}')">
-            ${aluno.status === 'ativo' ? 'Inativar' : 'Ativar'}
-          </button>
-        </td>
-      </tr>
-    `;
+        <tr>
+          <td>${aluno.ra}</td>
+          <td>${aluno.nome}</td>
+          <td>${aluno.ensino}</td>
+          <td>${aluno.turma}</td>
+          <td class="${aluno.status === 'ativo' ? 'ativo' : 'inativo'}">
+            ${aluno.status}
+          </td>
+          <td>
+            <button onclick="alterarStatus('${aluno.ra}', '${aluno.status}')">
+              ${aluno.status === 'ativo' ? 'Inativar' : 'Ativar'}
+            </button>
+            <br><br>
+            <input type="file" onchange="uploadFoto(event, '${aluno.ra}')">
+          </td>
+        </tr>
+        `;
   });
 
   html += "</table>";
@@ -182,4 +184,5 @@
 
 </body>
 </html>
+
 
