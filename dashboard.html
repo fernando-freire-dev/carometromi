@@ -180,6 +180,9 @@
   }
 }
 
+  const { data: { user } } = await supabase.auth.getUser();
+      console.log("Usuário no upload:", user);
+    
 window.uploadFoto = async function(event, ra) {
 
   const file = event.target.files[0];
@@ -205,6 +208,7 @@ window.uploadFoto = async function(event, ra) {
 
 </body>
 </html>
+
 
 
 
