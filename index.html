@@ -14,10 +14,10 @@
 
   <p id="mensagem"></p>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-  <script>
-    const supabase = window.supabase.createClient(
+    const supabase = createClient(
       "https://ktokzupvbzgvrlmukyow.supabase.co",
       "sb_publishable_cIHQLm1L_KAvvf1CrENu0w_QdgyNVjO"
     );
@@ -25,13 +25,12 @@
     const botao = document.getElementById("btnLogin");
 
     botao.addEventListener("click", async () => {
-
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: password
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
 
       if (error) {
@@ -39,12 +38,9 @@
       } else {
         window.location.href = "dashboard.html";
       }
-
     });
 
   </script>
 
 </body>
-</html>
-
 </html>
