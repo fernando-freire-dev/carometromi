@@ -101,6 +101,18 @@
   const selectEnsino = document.getElementById("filtroEnsino");
   const selectTurma = document.getElementById("filtroTurma");
 
+  selectEnsino.addEventListener("change", carregarAlunos);
+  selectTurma.addEventListener("change", carregarAlunos);
+
+  let timeoutBusca;
+    campoBusca.addEventListener("input", () => {
+      clearTimeout(timeoutBusca);
+    
+      timeoutBusca = setTimeout(() => {
+        carregarAlunos();
+      }, 300); // 300ms de espera
+    });
+
   selectEnsino.addEventListener("change", () => {
     selectTurma.innerHTML = '<option value="">Todas as Turmas</option>';
 
@@ -235,6 +247,7 @@
 
 </body>
 </html>
+
 
 
 
