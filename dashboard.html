@@ -105,58 +105,81 @@
 
     async function carregarAlunos() {
 
-      let query = supabase
-        .from("alunos")
-        .select("*")
-        .order("nome", { ascending: true });
+  let query = supabase
+    .from("alunos")
+    .select("*")
+    .order("nome", { ascending: true });
 
-      if (selectEnsino.value) {
-        query = query.eq("ensino", selectEnsino.value);
-      }
+  if (selectEnsino.value) {
+    query = query.eq("ensino", selectEnsino.value);
+  }
 
-      if (selectTurma.value) {
-        query = query.eq("turma", selectTurma.value);
-      }
+  if (selectTurma.value) {
+    query = query.eq("turma", selectTurma.value);
+  }
 
-      const { data, error } = await query;
+  const { data, error } = await query;
 
-      if (error) {
-        console.error("Erro:", error);
-        return;
-      }
+  if (error) {
+    console.error("Erro:", error);
+    return;
+  }
 
-      let html = `
-        <table>
-          <tr>
-            <th>RA</th>
-            <th>Nome</th>
-            <th>Ensino</th>
-            <th>Turma</th>
-            <th>Status</th>
-          </tr>
-      `;
+  let html = `
+    <table>
+      <tr>
+        <th>RA</th>
+        <th>Nome</th>
+        <th>Ensino</th>
+        <th>Turma</th>
+        <th>Status</th>
+        <th>Ação</th>
+      </tr>
+  `;
 
-      data.forEach(aluno => {
-        html += `
-          <tr>
-            <td>${aluno.ra}</td>
-            <td>${aluno.nome}</td>
-            <td>${aluno.ensino}</td>
-            <td>${aluno.turma}</td>
-            <td class="${aluno.status === 'ativo' ? 'ativo' : 'inativo'}">
-              ${aluno.status}
-            </td>
-          </tr>
-        `;
-      });
+  data.forEach(aluno => {
+    html += `
+      <tr>
+        <td>${aluno.ra}</td>
+        <td>${aluno.nome}</td>
+        <td>${aluno.ensino}</td>
+        <td>${aluno.turma}</td>
+        <td class="${aluno.status === 'ativo' ? 'ativo' : 'inativo'}">
+          ${aluno.status}
+        </td>
+        <td>
+          <button onclick="alterarStatus('${aluno.ra}', '${aluno.status}')">
+            ${aluno.status === 'ativo' ? 'Inativar' : 'Ativar'}
+          </button>
+        </td>
+      </tr>
+    `;
+  });
 
-      html += "</table>";
+  html += "</table>";
 
-      document.getElementById("tabelaAlunos").innerHTML = html;
-    }
+  document.getElementById("tabelaAlunos").innerHTML = html;
+}
 
-    carregarAlunos();
+    window.alterarStatus = async function(ra, statusAtual) {
+
+  const novoStatus = statusAtual === "ativo" ? "inativo" : "ativo";
+
+  const { error } = await supabase
+    .from("alunos")
+    .update({ status: novoStatus })
+    .eq("ra", ra);
+
+  if (error) {
+    alert("Erro ao atualizar status");
+    console.error(error);
+  } else {
+    carregarAlunos(); // Atualiza a tabela
+  }
+}
+    //carregarAlunos();
   </script>
 
 </body>
 </html>
+
