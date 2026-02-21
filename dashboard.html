@@ -179,10 +179,32 @@
     carregarAlunos(); // Atualiza a tabela
   }
 }
+
+window.uploadFoto = async function(event, ra) {
+
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const { error } = await supabase.storage
+    .from('fotos-alunos')
+    .upload(`${ra}.jpg`, file, {
+      upsert: true
+    });
+
+  if (error) {
+    alert("Erro ao enviar foto");
+    console.error(error);
+  } else {
+    alert("Foto enviada com sucesso!");
+  }
+}
+    
     //carregarAlunos();
   </script>
 
 </body>
 </html>
+
 
 
