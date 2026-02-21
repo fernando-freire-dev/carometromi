@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Dashboard - Sistema Escolar</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -18,7 +19,7 @@
     th, td {
       border: 1px solid #ddd;
       padding: 10px;
-      text-align: left;
+      text-align: center;
     }
 
     th {
@@ -39,107 +40,127 @@
       padding: 6px;
       margin-right: 10px;
     }
+
+    img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
   </style>
 </head>
 <body>
 
-  <h2>Painel do Sistema Escolar</h2>
-  <button id="btnLogout">Sair</button>
+<h2>Painel do Sistema Escolar</h2>
+<button id="btnLogout">Sair</button>
 
-  <h3>Filtrar</h3>
+<h3>Filtrar</h3>
 
-  <select id="filtroEnsino">
-    <option value="">Todos os Ensinos</option>
-    <option value="Fundamental">Fundamental</option>
-    <option value="Médio">Médio</option>
-  </select>
+<select id="filtroEnsino">
+  <option value="">Todos os Ensinos</option>
+  <option value="Fundamental">Fundamental</option>
+  <option value="Médio">Médio</option>
+</select>
 
-  <select id="filtroTurma">
-    <option value="">Todas as Turmas</option>
-  </select>
+<select id="filtroTurma">
+  <option value="">Todas as Turmas</option>
+</select>
 
-  <button id="btnFiltrar">Buscar</button>
+<button id="btnFiltrar">Buscar</button>
 
-  <div id="tabelaAlunos"></div>
+<div id="tabelaAlunos"></div>
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+<script type="module">
+  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-    const supabase = createClient(
-      "https://ktokzupvbzgvrlmukyow.supabase.co",
-      "sb_publishable_cIHQLm1L_KAvvf1CrENu0w_QdgyNVjO"
-    );
+  const supabase = createClient(
+    "https://ktokzupvbzgvrlmukyow.supabase.co",
+    "sb_publishable_cIHQLm1L_KAvvf1CrENu0w_QdgyNVjO"
+  );
 
-    // 🔐 Verificar login
-    const { data: { session } } = await supabase.auth.getSession();
+  // 🔐 Verificar login
+  const { data: { session } } = await supabase.auth.getSession();
 
-    if (!session) {
-      window.location.href = "index.html";
+  if (!session) {
+    window.location.href = "index.html";
+  }
+
+  document.getElementById("btnLogout").addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.href = "index.html";
+  });
+
+  // 🎓 Turmas
+  const turmas = {
+    "Fundamental": ["6ºA","6ºB","6ºC","7ºA","7ºB","7ºC","8ºA","8ºB","9ºA","9ºB","9ºC"],
+    "Médio": ["1ºA","1ºB","1ºC","2ºA","2ºB","2ºC","3ºA","3ºB","3ºC"]
+  };
+
+  const selectEnsino = document.getElementById("filtroEnsino");
+  const selectTurma = document.getElementById("filtroTurma");
+
+  selectEnsino.addEventListener("change", () => {
+    selectTurma.innerHTML = '<option value="">Todas as Turmas</option>';
+
+    if (turmas[selectEnsino.value]) {
+      turmas[selectEnsino.value].forEach(turma => {
+        selectTurma.innerHTML += `<option value="${turma}">${turma}</option>`;
+      });
+    }
+  });
+
+  document.getElementById("btnFiltrar").addEventListener("click", carregarAlunos);
+
+  async function carregarAlunos() {
+
+    let query = supabase
+      .from("alunos")
+      .select("*")
+      .order("nome", { ascending: true });
+
+    if (selectEnsino.value) {
+      query = query.eq("ensino", selectEnsino.value);
     }
 
-    document.getElementById("btnLogout").addEventListener("click", async () => {
-      await supabase.auth.signOut();
-      window.location.href = "index.html";
-    });
+    if (selectTurma.value) {
+      query = query.eq("turma", selectTurma.value);
+    }
 
-    // 🎓 Turmas por ensino
-    const turmas = {
-      "Fundamental": ["6ºA","6ºB","6ºC","7ºA","7ºB","7ºC","8ºA","8ºB","9ºA","9ºB","9ºC"],
-      "Médio": ["1ºA","1ºB","1ºC","2ºA","2ºB","2ºC","3ºA","3ºB","3ºC"]
-    };
+    const { data, error } = await query;
 
-    const selectEnsino = document.getElementById("filtroEnsino");
-    const selectTurma = document.getElementById("filtroTurma");
+    if (error) {
+      console.error("Erro:", error);
+      return;
+    }
 
-    selectEnsino.addEventListener("change", () => {
-      selectTurma.innerHTML = '<option value="">Todas as Turmas</option>';
-
-      if (turmas[selectEnsino.value]) {
-        turmas[selectEnsino.value].forEach(turma => {
-          selectTurma.innerHTML += `<option value="${turma}">${turma}</option>`;
-        });
-      }
-    });
-
-    document.getElementById("btnFiltrar").addEventListener("click", carregarAlunos);
-
-    async function carregarAlunos() {
-
-  let query = supabase
-    .from("alunos")
-    .select("*")
-    .order("nome", { ascending: true });
-
-  if (selectEnsino.value) {
-    query = query.eq("ensino", selectEnsino.value);
-  }
-
-  if (selectTurma.value) {
-    query = query.eq("turma", selectTurma.value);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    console.error("Erro:", error);
-    return;
-  }
-
-  let html = `
-    <table>
-      <tr>
-        <th>RA</th>
-        <th>Nome</th>
-        <th>Ensino</th>
-        <th>Turma</th>
-        <th>Status</th>
-        <th>Ação</th>
-      </tr>
-  `;
-
-  data.forEach(aluno => {
-    html += `
+    let html = `
+      <table>
         <tr>
+          <th>Foto</th>
+          <th>RA</th>
+          <th>Nome</th>
+          <th>Ensino</th>
+          <th>Turma</th>
+          <th>Status</th>
+          <th>Ação</th>
+        </tr>
+    `;
+
+    data.forEach(aluno => {
+
+      const { data: fotoData } = supabase
+        .storage
+        .from('fotos-alunos')
+        .getPublicUrl(`${aluno.ra}.jpg`);
+
+      const fotoUrl = fotoData.publicUrl;
+
+      html += `
+        <tr>
+          <td>
+            <img src="${fotoUrl}" 
+                 onerror="this.src='https://via.placeholder.com/60'">
+          </td>
           <td>${aluno.ra}</td>
           <td>${aluno.nome}</td>
           <td>${aluno.ensino}</td>
@@ -152,63 +173,57 @@
               ${aluno.status === 'ativo' ? 'Inativar' : 'Ativar'}
             </button>
             <br><br>
-            <input type="file" onchange="uploadFoto(event, '${aluno.ra}')">
+            <input type="file" accept="image/*" 
+                   onchange="uploadFoto(event, '${aluno.ra}')">
           </td>
         </tr>
-        `;
-  });
-
-  html += "</table>";
-
-  document.getElementById("tabelaAlunos").innerHTML = html;
-}
-
-    window.alterarStatus = async function(ra, statusAtual) {
-
-  const novoStatus = statusAtual === "ativo" ? "inativo" : "ativo";
-
-  const { error } = await supabase
-    .from("alunos")
-    .update({ status: novoStatus })
-    .eq("ra", ra);
-
-  if (error) {
-    alert("Erro ao atualizar status");
-    console.error(error);
-  } else {
-    carregarAlunos(); // Atualiza a tabela
-  }
-}
-
-  const { data: { user } } = await supabase.auth.getUser();
-      console.log("Usuário no upload:", user);
-    
-window.uploadFoto = async function(event, ra) {
-
-  const file = event.target.files[0];
-
-  if (!file) return;
-
-  const { error } = await supabase.storage
-    .from('fotos-alunos')
-    .upload(`${ra}.jpg`, file, {
-      upsert: true
+      `;
     });
 
-  if (error) {
-    alert("Erro ao enviar foto");
-    console.error(error);
-  } else {
-    alert("Foto enviada com sucesso!");
+    html += "</table>";
+
+    document.getElementById("tabelaAlunos").innerHTML = html;
   }
-}
-    
-    //carregarAlunos();
-  </script>
+
+  window.alterarStatus = async function(ra, statusAtual) {
+
+    const novoStatus = statusAtual === "ativo" ? "inativo" : "ativo";
+
+    const { error } = await supabase
+      .from("alunos")
+      .update({ status: novoStatus })
+      .eq("ra", ra);
+
+    if (error) {
+      alert("Erro ao atualizar status");
+      console.error(error);
+    } else {
+      carregarAlunos();
+    }
+  }
+
+  window.uploadFoto = async function(event, ra) {
+
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const { error } = await supabase.storage
+      .from('fotos-alunos')
+      .upload(`${ra}.jpg`, file, { upsert: true });
+
+    if (error) {
+      alert("Erro ao enviar foto");
+      console.error(error);
+    } else {
+      alert("Foto enviada com sucesso!");
+      carregarAlunos(); // Atualiza imagem
+    }
+  }
+
+  // Carrega automaticamente ao abrir
+  carregarAlunos();
+
+</script>
 
 </body>
 </html>
-
-
-
-
