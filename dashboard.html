@@ -204,17 +204,17 @@
           <td>${aluno.ra}</td>
           <td>${aluno.nome}</td>
           <td>${aluno.ensino}</td>
-          <td>
-            <select onchange="confirmarMudancaTurma('${aluno.ra}', '${aluno.nome}', '${aluno.turma}', this.value)">
-              ${gerarOptionsTurma(aluno.ensino, aluno.turma)}
-            </select>
-          </td>
+          <td>${aluno.turma}</td>
           <td class="${aluno.status === 'ativo' ? 'ativo' : 'inativo'}">
             ${aluno.status}
           </td>
           <td>
             <button onclick="alterarStatus('${aluno.ra}', '${aluno.status}')">
               ${aluno.status === 'ativo' ? 'Inativar' : 'Ativar'}
+            </button>
+            <br><br>
+            <button onclick="iniciarMudancaTurma('${aluno.ra}', '${aluno.nome}', '${aluno.ensino}', '${aluno.turma}')">
+              Alterar Turma
             </button>
             <br><br>
             <input type="file" accept="image/*" 
@@ -292,6 +292,52 @@
         }
       }
 
+  window.iniciarMudancaTurma = async function(ra, nome, ensino, turmaAtual) {
+
+  const listaTurmas = turmas[ensino];
+
+  if (!listaTurmas) {
+    alert("Não há turmas disponíveis para este ensino.");
+    return;
+  }
+
+  const novaTurma = prompt(
+    `Turmas disponíveis:\n\n${listaTurmas.join(" - ")}\n\nDigite a nova turma para o aluno "${nome}":`
+  );
+
+  if (!novaTurma) return;
+
+  if (!listaTurmas.includes(novaTurma)) {
+    alert("Turma inválida!");
+    return;
+  }
+
+  if (novaTurma === turmaAtual) {
+    alert("O aluno já está nessa turma.");
+    return;
+  }
+
+  const confirmar = confirm(
+    `Você deseja alterar o aluno "${nome}"\n` +
+    `da turma "${turmaAtual}" para "${novaTurma}"?`
+  );
+
+  if (!confirmar) return;
+
+  const { error } = await supabase
+    .from("alunos")
+    .update({ turma: novaTurma })
+    .eq("ra", ra);
+
+  if (error) {
+    alert("Erro ao atualizar turma.");
+    console.error(error);
+  } else {
+    alert("Turma alterada com sucesso!");
+    carregarAlunos();
+  }
+}
+
   // Carrega automaticamente ao abrir
   carregarAlunos();
 
@@ -299,6 +345,7 @@
 
 </body>
 </html>
+
 
 
 
