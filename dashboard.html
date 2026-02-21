@@ -5,278 +5,399 @@
   <title>Dashboard - Sistema Escolar</title>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
+  body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      background-color: #f4f6f9;
     }
-
+    
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    h2 {
+      margin-top: 0;
+    }
+    
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    button:hover {
+      opacity: 0.9;
+    }
+    
+    .btn-primary {
+      background-color: #2563eb;
+      color: white;
+    }
+    
+    .btn-danger {
+      background-color: #dc2626;
+      color: white;
+    }
+    
+    .btn-secondary {
+      background-color: #6b7280;
+      color: white;
+    }
+    
     table {
       border-collapse: collapse;
       width: 100%;
       margin-top: 20px;
     }
-
+    
     th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
+      padding: 12px;
       text-align: center;
     }
-
+    
     th {
-      background-color: #f4f4f4;
+      background-color: #f9fafb;
+      font-weight: 600;
     }
-
-    .ativo {
-      color: green;
+    
+    tr:nth-child(even) {
+      background-color: #f3f4f6;
+    }
+    
+    .badge {
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-size: 12px;
       font-weight: bold;
     }
-
-    .inativo {
-      color: red;
-      font-weight: bold;
+    
+    .badge-ativo {
+      background-color: #dcfce7;
+      color: #166534;
     }
-
-    select {
-      padding: 6px;
-      margin-right: 10px;
+    
+    .badge-inativo {
+      background-color: #fee2e2;
+      color: #991b1b;
     }
-
+    
     img {
       width: 60px;
       height: 60px;
-      object-fit: cover;
       border-radius: 50%;
+      object-fit: cover;
     }
-  </style>
+    
+    .filtros {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    input, select {
+      padding: 6px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+</style>
 </head>
 <body>
+  <div class="container">
 
-<h2>Painel do Sistema Escolar</h2>
-<button id="btnLogout">Sair</button>
-
-<h3>Filtrar</h3>
-
-<select id="filtroEnsino">
-  <option value="">Todos os Ensinos</option>
-  <option value="Fundamental">Fundamental</option>
-  <option value="Médio">Médio</option>
-</select>
-
-<select id="filtroTurma">
-  <option value="">Todas as Turmas</option>
-</select>
-
-<button id="btnFiltrar">Buscar</button>
-
-<br>
-<br>
-  
-<input type="text" id="buscaNome" placeholder="Buscar por nome ou RA">
-
-<div id="tabelaAlunos"></div>
-
-<script type="module">
-  import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-  const supabase = createClient(
-    "https://ktokzupvbzgvrlmukyow.supabase.co",
-    "sb_publishable_cIHQLm1L_KAvvf1CrENu0w_QdgyNVjO"
-  );
-
-  // 🔐 Verificar login
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    window.location.href = "index.html";
-  }
-
-  document.getElementById("btnLogout").addEventListener("click", async () => {
-    await supabase.auth.signOut();
-    window.location.href = "index.html";
-  });
-
-  // 🎓 Turmas
-  const turmas = {
-    "Fundamental": ["6ºA","6ºB","6ºC","7ºA","7ºB","7ºC","8ºA","8ºB","9ºA","9ºB","9ºC"],
-    "Médio": ["1ºA","1ºB","1ºC","2ºA","2ºB","2ºC","3ºA","3ºB","3ºC"]
-  };
-
-  const selectEnsino = document.getElementById("filtroEnsino");
-  const selectTurma = document.getElementById("filtroTurma");
-  const campoBusca = document.getElementById("buscaNome");
-  
-  // Atualiza ao mudar ensino ou turma
-  selectEnsino.addEventListener("change", carregarAlunos);
-  selectTurma.addEventListener("change", carregarAlunos);
-  
-  // Busca em tempo real com debounce
-  let timeoutBusca;
-  
-  campoBusca.addEventListener("input", () => {
-    clearTimeout(timeoutBusca);
-  
-    timeoutBusca = setTimeout(() => {
-      carregarAlunos();
-    }, 300);
-  });
-
-  selectEnsino.addEventListener("change", () => {
-    selectTurma.innerHTML = '<option value="">Todas as Turmas</option>';
-
-    if (turmas[selectEnsino.value]) {
-      turmas[selectEnsino.value].forEach(turma => {
-        selectTurma.innerHTML += `<option value="${turma}">${turma}</option>`;
-      });
-    }
-  });
-
-  document.getElementById("btnFiltrar").addEventListener("click", carregarAlunos);
-
-  window.gerarOptionsTurma = function(ensino, turmaAtual) {
-
-      if (!turmas[ensino]) return "";
-    
-      return turmas[ensino]
-        .map(t => `
-          <option value="${t}" ${t === turmaAtual ? "selected" : ""}>
-            ${t}
-          </option>
-        `)
-        .join("");
-    }
-
-  async function carregarAlunos() {
-    
-    let query = supabase
-      .from("alunos")
-      .select("*")
-      .order("nome", { ascending: true });
-
-    const busca = document.getElementById("buscaNome").value.trim();
-
-    if (selectEnsino.value) {
-      query = query.eq("ensino", selectEnsino.value);
-    }
-
-    if (selectTurma.value) {
-      query = query.eq("turma", selectTurma.value);
-    }
-
-    if (busca) {
-      query = query.or(`nome.ilike.%${busca}%,ra.ilike.%${busca}%`);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("Erro:", error);
-      return;
-    }
-
-    let html = `
-      <table>
-        <tr>
-          <th>Foto</th>
-          <th>RA</th>
-          <th>Nome</th>
-          <th>Ensino</th>
-          <th>Turma</th>
-          <th>Status</th>
-          <th>Ação</th>
-        </tr>
-    `;
-
-    data.forEach(aluno => {
-
-      const { data: fotoData } = supabase
-        .storage
-        .from('fotos-alunos')
-        .getPublicUrl(`${aluno.ra}.jpg`);
-
-      const fotoUrl = fotoData.publicUrl + '?t=' + new Date().getTime();
-
-      html += `
-        <tr>
-          <td>
-            <img src="${fotoUrl}" 
-                 onerror="this.src='https://via.placeholder.com/60'">
-          </td>
-          <td>${aluno.ra}</td>
-          <td>${aluno.nome}</td>
-          <td>${aluno.ensino}</td>
-          <td>${aluno.turma}</td>
-          <td class="${aluno.status === 'ativo' ? 'ativo' : 'inativo'}">
-            ${aluno.status}
-          </td>
-          <td>
-            <button onclick="alterarStatus('${aluno.ra}', '${aluno.status}')">
-              ${aluno.status === 'ativo' ? 'Inativar' : 'Ativar'}
-            </button>
-            <br><br>
-            <button onclick="iniciarMudancaTurma('${aluno.ra}', '${aluno.nome}', '${aluno.ensino}', '${aluno.turma}')">
-              Alterar Turma
-            </button>
-            <br><br>
-            <input type="file" accept="image/*" 
-                   onchange="uploadFoto(event, '${aluno.ra}')">
-          </td>
-        </tr>
-      `;
-    });
-
-    html += "</table>";
-
-    document.getElementById("tabelaAlunos").innerHTML = html;
-  }
-
-  window.alterarStatus = async function(ra, statusAtual) {
-
-    const novoStatus = statusAtual === "ativo" ? "inativo" : "ativo";
-
-    const { error } = await supabase
-      .from("alunos")
-      .update({ status: novoStatus })
-      .eq("ra", ra);
-
-    if (error) {
-      alert("Erro ao atualizar status");
-      console.error(error);
-    } else {
-      carregarAlunos();
-    }
-  }
-
-  window.uploadFoto = async function(event, ra) {
-
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const { error } = await supabase.storage
-      .from('fotos-alunos')
-      .upload(`${ra}.jpg`, file, { upsert: true });
-
-    if (error) {
-      alert("Erro ao enviar foto");
-      console.error(error);
-    } else {
-      alert("Foto enviada com sucesso!");
-      carregarAlunos(); // Atualiza imagem
-    }
-  }
-
-  window.confirmarMudancaTurma = async function(ra, nome, turmaAtual, novaTurma) {
-
-        if (turmaAtual === novaTurma) return;
+      <h2>Painel do Sistema Escolar</h2>
+      <button id="btnLogout">Sair</button>
       
-        const confirmar = confirm(
+      <h3>Filtrar</h3>
+      
+      <select id="filtroEnsino">
+        <option value="">Todos os Ensinos</option>
+        <option value="Fundamental">Fundamental</option>
+        <option value="Médio">Médio</option>
+      </select>
+      
+      <select id="filtroTurma">
+        <option value="">Todas as Turmas</option>
+      </select>
+      
+      <button id="btnFiltrar">Buscar</button>
+      
+      <br>
+      <br>
+        
+      <input type="text" id="buscaNome" placeholder="Buscar por nome ou RA">
+      
+      <div id="tabelaAlunos"></div>
+      
+      <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+      
+        const supabase = createClient(
+          "https://ktokzupvbzgvrlmukyow.supabase.co",
+          "sb_publishable_cIHQLm1L_KAvvf1CrENu0w_QdgyNVjO"
+        );
+      
+        // 🔐 Verificar login
+        const { data: { session } } = await supabase.auth.getSession();
+      
+        if (!session) {
+          window.location.href = "index.html";
+        }
+      
+        document.getElementById("btnLogout").addEventListener("click", async () => {
+          await supabase.auth.signOut();
+          window.location.href = "index.html";
+        });
+      
+        // 🎓 Turmas
+        const turmas = {
+          "Fundamental": ["6ºA","6ºB","6ºC","7ºA","7ºB","7ºC","8ºA","8ºB","9ºA","9ºB","9ºC"],
+          "Médio": ["1ºA","1ºB","1ºC","2ºA","2ºB","2ºC","3ºA","3ºB","3ºC"]
+        };
+      
+        const selectEnsino = document.getElementById("filtroEnsino");
+        const selectTurma = document.getElementById("filtroTurma");
+        const campoBusca = document.getElementById("buscaNome");
+        
+        // Atualiza ao mudar ensino ou turma
+        selectEnsino.addEventListener("change", carregarAlunos);
+        selectTurma.addEventListener("change", carregarAlunos);
+        
+        // Busca em tempo real com debounce
+        let timeoutBusca;
+        
+        campoBusca.addEventListener("input", () => {
+          clearTimeout(timeoutBusca);
+        
+          timeoutBusca = setTimeout(() => {
+            carregarAlunos();
+          }, 300);
+        });
+      
+        selectEnsino.addEventListener("change", () => {
+          selectTurma.innerHTML = '<option value="">Todas as Turmas</option>';
+      
+          if (turmas[selectEnsino.value]) {
+            turmas[selectEnsino.value].forEach(turma => {
+              selectTurma.innerHTML += `<option value="${turma}">${turma}</option>`;
+            });
+          }
+        });
+      
+        document.getElementById("btnFiltrar").addEventListener("click", carregarAlunos);
+      
+        window.gerarOptionsTurma = function(ensino, turmaAtual) {
+      
+            if (!turmas[ensino]) return "";
+          
+            return turmas[ensino]
+              .map(t => `
+                <option value="${t}" ${t === turmaAtual ? "selected" : ""}>
+                  ${t}
+                </option>
+              `)
+              .join("");
+          }
+      
+        async function carregarAlunos() {
+          
+          let query = supabase
+            .from("alunos")
+            .select("*")
+            .order("nome", { ascending: true });
+      
+          const busca = document.getElementById("buscaNome").value.trim();
+      
+          if (selectEnsino.value) {
+            query = query.eq("ensino", selectEnsino.value);
+          }
+      
+          if (selectTurma.value) {
+            query = query.eq("turma", selectTurma.value);
+          }
+      
+          if (busca) {
+            query = query.or(`nome.ilike.%${busca}%,ra.ilike.%${busca}%`);
+          }
+      
+          const { data, error } = await query;
+      
+          if (error) {
+            console.error("Erro:", error);
+            return;
+          }
+      
+          let html = `
+            <table>
+              <tr>
+                <th>Foto</th>
+                <th>RA</th>
+                <th>Nome</th>
+                <th>Ensino</th>
+                <th>Turma</th>
+                <th>Status</th>
+                <th>Ação</th>
+              </tr>
+          `;
+      
+          data.forEach(aluno => {
+      
+            const { data: fotoData } = supabase
+              .storage
+              .from('fotos-alunos')
+              .getPublicUrl(`${aluno.ra}.jpg`);
+      
+            const fotoUrl = fotoData.publicUrl + '?t=' + new Date().getTime();
+      
+            html += `
+              <tr>
+                <td>
+                  <img src="${fotoUrl}" 
+                       onerror="this.src='https://via.placeholder.com/60'">
+                </td>
+                <td>${aluno.ra}</td>
+                <td>${aluno.nome}</td>
+                <td>${aluno.ensino}</td>
+                <td>${aluno.turma}</td>
+                <td>
+                  <span class="badge ${aluno.status === 'ativo' ? 'badge-ativo' : 'badge-inativo'}">
+                    ${aluno.status}
+                  </span>
+                </td>
+                <td>
+                  <button onclick="alterarStatus('${aluno.ra}', '${aluno.status}')">
+                    ${aluno.status === 'ativo' ? 'Inativar' : 'Ativar'}
+                  </button>
+                  <br><br>
+                  <button onclick="iniciarMudancaTurma('${aluno.ra}', '${aluno.nome}', '${aluno.ensino}', '${aluno.turma}')">
+                    Alterar Turma
+                  </button>
+                  <br><br>
+                  <input type="file" accept="image/*" 
+                         onchange="uploadFoto(event, '${aluno.ra}')">
+                </td>
+              </tr>
+            `;
+          });
+      
+          html += "</table>";
+      
+          document.getElementById("tabelaAlunos").innerHTML = html;
+        }
+      
+        window.alterarStatus = async function(ra, statusAtual) {
+      
+          const novoStatus = statusAtual === "ativo" ? "inativo" : "ativo";
+      
+          const { error } = await supabase
+            .from("alunos")
+            .update({ status: novoStatus })
+            .eq("ra", ra);
+      
+          if (error) {
+            alert("Erro ao atualizar status");
+            console.error(error);
+          } else {
+            carregarAlunos();
+          }
+        }
+      
+        window.uploadFoto = async function(event, ra) {
+      
+          const file = event.target.files[0];
+          if (!file) return;
+      
+          const { error } = await supabase.storage
+            .from('fotos-alunos')
+            .upload(`${ra}.jpg`, file, { upsert: true });
+      
+          if (error) {
+            alert("Erro ao enviar foto");
+            console.error(error);
+          } else {
+            alert("Foto enviada com sucesso!");
+            carregarAlunos(); // Atualiza imagem
+          }
+        }
+      
+        window.confirmarMudancaTurma = async function(ra, nome, turmaAtual, novaTurma) {
+      
+              if (turmaAtual === novaTurma) return;
+            
+              const confirmar = confirm(
+                `Você deseja alterar o aluno "${nome}"\n` +
+                `da turma "${turmaAtual}" para "${novaTurma}"?`
+              );
+            
+              if (!confirmar) {
+                carregarAlunos(); // volta visualmente ao original
+                return;
+              }
+            
+              const { error } = await supabase
+                .from("alunos")
+                .update({ turma: novaTurma })
+                .eq("ra", ra);
+            
+              if (error) {
+                alert("Erro ao atualizar turma");
+                console.error(error);
+              } else {
+                alert("Turma alterada com sucesso!");
+                carregarAlunos();
+              }
+            }
+      
+        window.iniciarMudancaTurma = async function(ra, nome, ensino, turmaAtual) {
+      
+        const listaTurmas = turmas[ensino];
+      
+        if (!listaTurmas) {
+          alert("Não há turmas disponíveis.");
+          return;
+        }
+      
+        // Criar select dinamicamente
+        const select = document.createElement("select");
+      
+        listaTurmas.forEach(t => {
+          const option = document.createElement("option");
+          option.value = t;
+          option.textContent = t;
+          if (t === turmaAtual) option.selected = true;
+          select.appendChild(option);
+        });
+      
+        // Criar container
+        const container = document.createElement("div");
+        container.appendChild(select);
+      
+        const confirmarSelecao = confirm(
+          `Selecione a nova turma no campo abaixo.\n\n` +
+          `Depois clique em OK para continuar.`
+        );
+      
+        if (!confirmarSelecao) return;
+      
+        const novaTurma = select.value;
+      
+        if (novaTurma === turmaAtual) {
+          alert("O aluno já está nessa turma.");
+          return;
+        }
+      
+        const confirmarFinal = confirm(
           `Você deseja alterar o aluno "${nome}"\n` +
           `da turma "${turmaAtual}" para "${novaTurma}"?`
         );
       
-        if (!confirmar) {
-          carregarAlunos(); // volta visualmente ao original
-          return;
-        }
+        if (!confirmarFinal) return;
       
         const { error } = await supabase
           .from("alunos")
@@ -284,80 +405,22 @@
           .eq("ra", ra);
       
         if (error) {
-          alert("Erro ao atualizar turma");
+          alert("Erro ao atualizar turma.");
           console.error(error);
         } else {
           alert("Turma alterada com sucesso!");
           carregarAlunos();
         }
       }
-
-  window.iniciarMudancaTurma = async function(ra, nome, ensino, turmaAtual) {
-
-  const listaTurmas = turmas[ensino];
-
-  if (!listaTurmas) {
-    alert("Não há turmas disponíveis.");
-    return;
-  }
-
-  // Criar select dinamicamente
-  const select = document.createElement("select");
-
-  listaTurmas.forEach(t => {
-    const option = document.createElement("option");
-    option.value = t;
-    option.textContent = t;
-    if (t === turmaAtual) option.selected = true;
-    select.appendChild(option);
-  });
-
-  // Criar container
-  const container = document.createElement("div");
-  container.appendChild(select);
-
-  const confirmarSelecao = confirm(
-    `Selecione a nova turma no campo abaixo.\n\n` +
-    `Depois clique em OK para continuar.`
-  );
-
-  if (!confirmarSelecao) return;
-
-  const novaTurma = select.value;
-
-  if (novaTurma === turmaAtual) {
-    alert("O aluno já está nessa turma.");
-    return;
-  }
-
-  const confirmarFinal = confirm(
-    `Você deseja alterar o aluno "${nome}"\n` +
-    `da turma "${turmaAtual}" para "${novaTurma}"?`
-  );
-
-  if (!confirmarFinal) return;
-
-  const { error } = await supabase
-    .from("alunos")
-    .update({ turma: novaTurma })
-    .eq("ra", ra);
-
-  if (error) {
-    alert("Erro ao atualizar turma.");
-    console.error(error);
-  } else {
-    alert("Turma alterada com sucesso!");
-    carregarAlunos();
-  }
-}
-
-  // Carrega automaticamente ao abrir
-  carregarAlunos();
-
-</script>
-
+      
+        // Carrega automaticamente ao abrir
+        carregarAlunos();
+      
+      </script>
+  </div>
 </body>
 </html>
+
 
 
 
