@@ -235,7 +235,7 @@ async function carregarAlunos() {
       <td>${aluno.ensino}</td>
       <td>${aluno.turma}</td>
       <td>
-        <span class="badge ${aluno.status === 'ativo' ? 'badge-ativo' : 'badge-inativo'}">
+        <span class="badge ${aluno.status === 'ativo' or 'Ativo' ? 'badge-ativo' : 'badge-inativo'}">
           ${aluno.status}
         </span>
       </td>
@@ -319,3 +319,4 @@ carregarAlunos();
 </script>
 </body>
 </html>
+
