@@ -161,6 +161,38 @@ select, input {
   from { transform: scale(0.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
+.foto-mini {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.foto-mini:hover {
+  transform: scale(1.1);
+}
+
+.overlay-foto {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.overlay-foto img {
+  max-width: 80%;
+  max-height: 80%;
+  border-radius: 10px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  animation: zoomIn 0.2s ease-in-out;
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
   
 </style>
 </head>
@@ -282,7 +314,11 @@ select, input {
           html += `
           <tr>
             <td>
-              <img src="${fotoUrl}" onerror="this.src='https://via.placeholder.com/60'">
+              <img 
+                  src="${fotoUrl}" 
+                  class="foto-mini"
+                  data-src="${fotoUrl}"
+                  onerror="this.src='https://via.placeholder.com/60'">
             </td>
             <td>${aluno.ra}</td>
             <td>${aluno.nome}</td>
@@ -344,6 +380,17 @@ select, input {
               btn.dataset.ensino,
               btn.dataset.turma
             );
+          });
+        });
+
+        // Evento abrir foto
+        document.querySelectorAll(".foto-mini").forEach(img => {
+          img.addEventListener("click", () => {
+            const overlay = document.getElementById("visualizadorFoto");
+            const fotoGrande = document.getElementById("fotoAmpliada");
+        
+            fotoGrande.src = img.dataset.src;
+            overlay.style.display = "flex";
           });
         });
       }
@@ -443,6 +490,13 @@ select, input {
           carregarAlunos();
         }
       });
+
+      // Fechar ao clicar fora da foto
+      document.getElementById("visualizadorFoto").addEventListener("click", (e) => {
+        if (e.target.id === "visualizadorFoto") {
+          e.currentTarget.style.display = "none";
+        }
+      });
       
       carregarAlunos();
       
@@ -465,7 +519,12 @@ select, input {
   
     </div>
   </div>
+    <!-- Visualizador de Foto -->
+  <div id="visualizadorFoto" class="overlay-foto">
+    <img id="fotoAmpliada">
+  </div>
 </body>
 </html>
+
 
 
