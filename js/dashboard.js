@@ -71,7 +71,7 @@ async function carregarAlunos() {
     <table>
       <tr>
         <th>Foto</th>
-        <th>RA</th>
+        <th class="col-ra" style="display:none;">RA</th>
         <th>Nome</th>
         <th>Ensino</th>
         <th>Turma</th>
@@ -100,7 +100,7 @@ async function carregarAlunos() {
             data-src="${fotoUrl}"
             onerror="this.src='https://via.placeholder.com/60'">
         </td>
-        <td>${aluno.ra}</td>
+        <td class="col-ra" style="display:none;">${aluno.ra}</td>
         <td>${aluno.nome}</td>
         <td>${aluno.ensino}</td>
         <td>${aluno.turma}</td>
@@ -261,5 +261,16 @@ document.getElementById("visualizadorFoto").addEventListener("click", (e) => {
   }
 });
 
+// Esconde a coluna RA
+let raVisivel = false;
 
+document.getElementById("toggleRA").addEventListener("click", () => {
+
+  raVisivel = !raVisivel;
+
+  document.querySelectorAll(".col-ra").forEach(col => {
+    col.style.display = raVisivel ? "table-cell" : "none";
+  });
+});
 carregarAlunos();
+
