@@ -16,13 +16,19 @@
 <h3>Filtrar</h3>
 
 <select id="filtroEnsino">
-<option value="">Todos os Ensinos</option>
-<option value="Fundamental">Fundamental</option>
-<option value="Médio">Médio</option>
+  <option value="">Todos os Ensinos</option>
+  <option value="Fundamental">Fundamental</option>
+  <option value="Médio">Médio</option>
 </select>
 
 <select id="filtroTurma">
-<option value="">Todas as Turmas</option>
+  <option value="">Todas as Turmas</option>
+</select>
+
+<select id="filtroStatus">
+  <option value="Ativo" selected>Ativos</option>
+  <option value="Inativo">Inativos</option>
+  <option value="">Todos</option>
 </select>
 
 <input type="text" id="buscaNome" placeholder="Buscar por nome ou RA">
@@ -49,4 +55,5 @@
 
 <script type="module" src="js/dashboard.js"></script>
 </body>
+
 </html>
