@@ -73,9 +73,9 @@ async function carregarAlunos() {
         <th>Foto</th>
         <th class="col-ra" style="display:none;">RA</th>
         <th>Nome</th>
-        <th>Ensino</th>
-        <th>Turma</th>
+        <th>Turma</th>       
         <th>Status</th>
+        <th>Ensino</th> 
         <th>Ação</th>
       </tr>
   `;
@@ -101,14 +101,14 @@ async function carregarAlunos() {
             onerror="this.src='https://via.placeholder.com/60'">
         </td>
         <td class="col-ra" style="display:none;">${aluno.ra}</td>
-        <td>${aluno.nome}</td>
-        <td>${aluno.ensino}</td>
+        <td>${aluno.nome}</td>        
         <td>${aluno.turma}</td>
         <td>
           <span class="badge ${statusNormalizado === 'ativo' ? 'badge-ativo' : 'badge-inativo'}">
             ${aluno.status}
           </span>
         </td>
+        <td>${aluno.ensino}</td>
         <td>
           <div class="acoes">
 
@@ -273,4 +273,5 @@ document.getElementById("toggleRA").addEventListener("click", () => {
   });
 });
 carregarAlunos();
+
 
