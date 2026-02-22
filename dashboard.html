@@ -109,7 +109,7 @@ select, input {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.45);
   display: none;
   align-items: center;
   justify-content: center;
@@ -118,22 +118,43 @@ select, input {
 
 .modal {
   background: white;
-  padding: 25px;
-  border-radius: 10px;
-  width: 320px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  padding: 30px;
+  border-radius: 12px;
+  width: 380px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.15);
   animation: fadeIn 0.2s ease-in-out;
+  font-family: 'Segoe UI', sans-serif;
 }
 
 .modal h3 {
   margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.modal p {
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: #444;
+}
+
+.modal select {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 14px;
 }
 
 .modal-actions {
-  margin-top: 20px;
+  margin-top: 25px;
   display: flex;
   justify-content: flex-end;
   gap: 10px;
+}
+
+.modal-actions button {
+  min-width: 90px;
 }
 
 @keyframes fadeIn {
@@ -359,8 +380,8 @@ select, input {
         const select = document.getElementById("selectNovaTurma");
       
         info.innerHTML = `
-          <strong>${nome}</strong><br>
-          Turma atual: ${turmaAtual}
+          Aluno: <strong>${nome}</strong><br>
+          Turma atual: <strong>${turmaAtual}</strong>
         `;
       
         select.innerHTML = "";
@@ -408,14 +429,7 @@ select, input {
           modal.style.display = "none";
           return;
         }
-      
-        const confirmar = confirm(
-          `Alterar "${alunoSelecionado.nome}"\n` +
-          `de "${alunoSelecionado.turmaAtual}" para "${novaTurma}"?`
-        );
-      
-        if (!confirmar) return;
-      
+        
         const { error } = await supabase
           .from("alunos")
           .update({ turma: novaTurma })
@@ -453,4 +467,5 @@ select, input {
   </div>
 </body>
 </html>
+
 
