@@ -1,7 +1,9 @@
 import { supabase } from "./supabaseClient.js";
-import { verificarLogin, logout } from "./auth.js";
+import { verificarLogin, logout, obterUsuarioLogado } from "./auth.js";
 
 await verificarLogin();
+
+const usuarioAtual = await obterUsuarioLogado();
 
 // Logout
 document.getElementById("btnLogout")?.addEventListener("click", logout);
@@ -25,10 +27,23 @@ const selectNovaTurma = document.getElementById("selectNovaTurma");
 const btnCancelar = document.getElementById("btnCancelar");
 const btnConfirmarTurma = document.getElementById("btnConfirmarTurma");
 const toggleRA = document.getElementById("toggleRA");
+const infoUsuario = document.getElementById("infoUsuario");
+
+const btnInserirAluno = document.getElementById("btnInserirAluno");
+const modalInserirAluno = document.getElementById("modalInserirAluno");
+const btnCancelarInsercao = document.getElementById("btnCancelarInsercao");
+const btnSalvarAluno = document.getElementById("btnSalvarAluno");
+const novoRa = document.getElementById("novoRa");
+const novoNome = document.getElementById("novoNome");
+const novoEnsino = document.getElementById("novoEnsino");
+const novaTurma = document.getElementById("novaTurma");
+const novoStatus = document.getElementById("novoStatus");
 
 let timeoutBusca;
 let raVisivel = false;
 let alunoSelecionado = null;
+
+const ehCoordenador = usuarioAtual?.role === "coordenador";
 
 // =========================
 // Utilidades
@@ -70,6 +85,37 @@ function preencherSelectTurmas() {
   }
 }
 
+function preencherTurmasDoModalInsercao(ensino) {
+  novaTurma.innerHTML = '<option value="">Selecione</option>';
+
+  if (!turmas[ensino]) return;
+
+  turmas[ensino].forEach((turma) => {
+    const option = document.createElement("option");
+    option.value = turma;
+    option.textContent = turma;
+    novaTurma.appendChild(option);
+  });
+}
+
+function atualizarUIUsuario() {
+  if (infoUsuario && usuarioAtual) {
+    infoUsuario.textContent = `Usuário: ${usuarioAtual.nome || usuarioAtual.email} | Perfil: ${usuarioAtual.role}`;
+  }
+
+  if (btnInserirAluno) {
+    btnInserirAluno.style.display = ehCoordenador ? "inline-block" : "none";
+  }
+}
+
+function limparFormularioNovoAluno() {
+  novoRa.value = "";
+  novoNome.value = "";
+  novoEnsino.value = "";
+  novaTurma.innerHTML = '<option value="">Selecione o ensino primeiro</option>';
+  novoStatus.value = "Ativo";
+}
+
 // =========================
 // Eventos de filtro
 // =========================
@@ -84,6 +130,10 @@ selectStatus?.addEventListener("change", carregarAlunos);
 campoBusca?.addEventListener("input", () => {
   clearTimeout(timeoutBusca);
   timeoutBusca = setTimeout(() => carregarAlunos(), 300);
+});
+
+novoEnsino?.addEventListener("change", () => {
+  preencherTurmasDoModalInsercao(novoEnsino.value);
 });
 
 // =========================
@@ -138,7 +188,7 @@ function renderizarTabela(alunos) {
         <th>Turma</th>
         <th>Status</th>
         <th>Ensino</th>
-        <th>Ação</th>
+        ${ehCoordenador ? "<th>Ação</th>" : ""}
       </tr>
   `;
 
@@ -169,6 +219,9 @@ function renderizarTabela(alunos) {
           </span>
         </td>
         <td>${escaparHtml(aluno.ensino)}</td>
+        ${
+          ehCoordenador
+            ? `
         <td>
           <div class="acoes">
             <button
@@ -198,6 +251,9 @@ function renderizarTabela(alunos) {
             </label>
           </div>
         </td>
+        `
+            : ""
+        }
       </tr>
     `;
   });
@@ -214,7 +270,7 @@ tabelaAlunos?.addEventListener("click", async (event) => {
   const btnTurma = event.target.closest(".btn-turma");
   const fotoMini = event.target.closest(".foto-mini");
 
-  if (btnStatus) {
+  if (btnStatus && ehCoordenador) {
     const ra = btnStatus.dataset.ra;
     const statusAtual = obterStatusNormalizado(btnStatus.dataset.status);
     const novoStatus = statusAtual === "ativo" ? "Inativo" : "Ativo";
@@ -238,7 +294,7 @@ tabelaAlunos?.addEventListener("click", async (event) => {
     return;
   }
 
-  if (btnTurma) {
+  if (btnTurma && ehCoordenador) {
     iniciarMudancaTurma(
       btnTurma.dataset.ra,
       btnTurma.dataset.nome,
@@ -256,7 +312,7 @@ tabelaAlunos?.addEventListener("click", async (event) => {
 
 tabelaAlunos?.addEventListener("change", async (event) => {
   const inputFoto = event.target.closest(".input-foto");
-  if (!inputFoto) return;
+  if (!inputFoto || !ehCoordenador) return;
 
   const file = inputFoto.files?.[0];
   const ra = inputFoto.dataset.ra;
@@ -311,11 +367,11 @@ btnCancelar?.addEventListener("click", () => {
 });
 
 btnConfirmarTurma?.addEventListener("click", async () => {
-  if (!alunoSelecionado) return;
+  if (!alunoSelecionado || !ehCoordenador) return;
 
-  const novaTurma = selectNovaTurma.value;
+  const novaTurmaSelecionada = selectNovaTurma.value;
 
-  if (novaTurma === alunoSelecionado.turmaAtual) {
+  if (novaTurmaSelecionada === alunoSelecionado.turmaAtual) {
     modalTurma.style.display = "none";
     return;
   }
@@ -324,7 +380,7 @@ btnConfirmarTurma?.addEventListener("click", async () => {
 
   const { error } = await supabase
     .from("alunos")
-    .update({ turma: novaTurma })
+    .update({ turma: novaTurmaSelecionada })
     .eq("ra", alunoSelecionado.ra);
 
   btnConfirmarTurma.disabled = false;
@@ -337,6 +393,79 @@ btnConfirmarTurma?.addEventListener("click", async () => {
 
   modalTurma.style.display = "none";
   mostrarMensagem("Turma alterada com sucesso.");
+  carregarAlunos();
+});
+
+// =========================
+// Inserir aluno
+// =========================
+btnInserirAluno?.addEventListener("click", () => {
+  if (!ehCoordenador) return;
+  limparFormularioNovoAluno();
+  modalInserirAluno.style.display = "flex";
+});
+
+btnCancelarInsercao?.addEventListener("click", () => {
+  modalInserirAluno.style.display = "none";
+});
+
+btnSalvarAluno?.addEventListener("click", async () => {
+  if (!ehCoordenador) return;
+
+  const ra = novoRa.value.trim();
+  const nome = novoNome.value.trim();
+  const ensino = novoEnsino.value;
+  const turma = novaTurma.value;
+  const status = novoStatus.value;
+
+  if (!ra || !nome || !ensino || !turma || !status) {
+    mostrarMensagem("Preencha todos os campos.");
+    return;
+  }
+
+  btnSalvarAluno.disabled = true;
+
+  const { data: alunoExistente, error: erroBusca } = await supabase
+    .from("alunos")
+    .select("ra")
+    .eq("ra", ra)
+    .maybeSingle();
+
+  if (erroBusca) {
+    btnSalvarAluno.disabled = false;
+    console.error("Erro ao verificar RA:", erroBusca);
+    mostrarMensagem("Erro ao verificar se o RA já existe.");
+    return;
+  }
+
+  if (alunoExistente) {
+    btnSalvarAluno.disabled = false;
+    mostrarMensagem("Já existe um aluno com esse RA.");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("alunos")
+    .insert([
+      {
+        ra,
+        nome,
+        ensino,
+        turma,
+        status
+      }
+    ]);
+
+  btnSalvarAluno.disabled = false;
+
+  if (error) {
+    console.error("Erro ao inserir aluno:", error);
+    mostrarMensagem("Não foi possível inserir o aluno.");
+    return;
+  }
+
+  modalInserirAluno.style.display = "none";
+  mostrarMensagem("Aluno inserido com sucesso.");
   carregarAlunos();
 });
 
@@ -360,5 +489,8 @@ toggleRA?.addEventListener("click", () => {
   });
 });
 
+// =========================
 // Inicialização
+// =========================
+atualizarUIUsuario();
 carregarAlunos();
