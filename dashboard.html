@@ -10,32 +10,42 @@
 
 <div class="container">
 
-<h2>Painel do Carometro Escola Manoel Ignácio - 2026</h2>
-<button id="btnLogout" class="btn-primary">Sair</button>
-<button id="toggleRA" class="btn-secondary btn-sm">Mostrar/Esconder RA</button>
+  <div class="topo-painel">
+    <div>
+      <h2>Painel do Carometro Escola Manoel Ignácio - 2026</h2>
+      <p id="infoUsuario" class="info-usuario"></p>
+    </div>
 
-<h3>Filtrar</h3>
+    <div class="topo-acoes">
+      <button id="btnInserirAluno" class="btn-success" style="display:none;">Inserir Aluno</button>
+      <button id="toggleRA" class="btn-secondary btn-sm">Mostrar/Esconder RA</button>
+      <button id="btnLogout" class="btn-primary">Sair</button>
+    </div>
+  </div>
 
-<select id="filtroEnsino">
-  <option value="">Todos os Ensinos</option>
-  <option value="Fundamental">Fundamental</option>
-  <option value="Médio">Médio</option>
-</select>
+  <h3>Filtrar</h3>
 
-<select id="filtroTurma">
-  <option value="">Todas as Turmas</option>
-</select>
+  <div class="linha-filtros">
+    <select id="filtroEnsino">
+      <option value="">Todos os Ensinos</option>
+      <option value="Fundamental">Fundamental</option>
+      <option value="Médio">Médio</option>
+    </select>
 
-<select id="filtroStatus">
-  <option value="Ativo" selected>Ativos</option>
-  <option value="Inativo">Inativos</option>
-  <option value="">Todos</option>
-</select>
+    <select id="filtroTurma">
+      <option value="">Todas as Turmas</option>
+    </select>
 
-<input type="text" id="buscaNome" placeholder="Buscar por nome ou RA">
+    <select id="filtroStatus">
+      <option value="Ativo" selected>Ativos</option>
+      <option value="Inativo">Inativos</option>
+      <option value="">Todos</option>
+    </select>
 
+    <input type="text" id="buscaNome" placeholder="Buscar por nome ou RA">
+  </div>
 
-<div id="tabelaAlunos"></div>
+  <div id="tabelaAlunos"></div>
 
 </div>
 
@@ -51,6 +61,51 @@
   </div>
 </div>
 
+<div id="modalInserirAluno" class="modal-overlay">
+  <div class="modal">
+    <h3>Inserir Novo Aluno</h3>
+
+    <div class="form-group">
+      <label for="novoRa">RA</label>
+      <input type="text" id="novoRa" placeholder="Digite o RA">
+    </div>
+
+    <div class="form-group">
+      <label for="novoNome">Nome</label>
+      <input type="text" id="novoNome" placeholder="Digite o nome do aluno">
+    </div>
+
+    <div class="form-group">
+      <label for="novoEnsino">Ensino</label>
+      <select id="novoEnsino">
+        <option value="">Selecione</option>
+        <option value="Fundamental">Fundamental</option>
+        <option value="Médio">Médio</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="novaTurma">Turma</label>
+      <select id="novaTurma">
+        <option value="">Selecione o ensino primeiro</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="novoStatus">Status</label>
+      <select id="novoStatus">
+        <option value="Ativo" selected>Ativo</option>
+        <option value="Inativo">Inativo</option>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button id="btnCancelarInsercao" class="btn-secondary">Cancelar</button>
+      <button id="btnSalvarAluno" class="btn-primary">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div id="visualizadorFoto" class="overlay-foto">
   <img id="fotoAmpliada">
 </div>
@@ -59,7 +114,3 @@
 </body>
 
 </html>
-
-
-
-
