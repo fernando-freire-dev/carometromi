@@ -37,7 +37,6 @@ const novoRa = document.getElementById("novoRa");
 const novoNome = document.getElementById("novoNome");
 const novoEnsino = document.getElementById("novoEnsino");
 const novaTurma = document.getElementById("novaTurma");
-const novoStatus = document.getElementById("novoStatus");
 
 let timeoutBusca;
 let raVisivel = false;
@@ -113,7 +112,6 @@ function limparFormularioNovoAluno() {
   novoNome.value = "";
   novoEnsino.value = "";
   novaTurma.innerHTML = '<option value="">Selecione o ensino primeiro</option>';
-  novoStatus.value = "Ativo";
 }
 
 // =========================
@@ -416,9 +414,9 @@ btnSalvarAluno?.addEventListener("click", async () => {
   const nome = novoNome.value.trim();
   const ensino = novoEnsino.value;
   const turma = novaTurma.value;
-  const status = novoStatus.value;
+  const status = "Ativo";
 
-  if (!ra || !nome || !ensino || !turma || !status) {
+  if (!ra || !nome || !ensino || !turma) {
     mostrarMensagem("Preencha todos os campos.");
     return;
   }
