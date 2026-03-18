@@ -159,6 +159,56 @@ select, input {
 .overlay-foto img {
   max-width: 90vw;
   max-height: 90vh;
+
+  .topo-painel {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.topo-acoes {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.info-usuario {
+  margin-top: 6px;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.linha-filtros {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  font-size: 14px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal .form-group:last-of-type {
+  margin-bottom: 0;
+}
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }
