@@ -485,6 +485,8 @@ toggleRA?.addEventListener("click", () => {
   document.querySelectorAll(".col-ra").forEach((col) => {
     col.style.display = raVisivel ? "table-cell" : "none";
   });
+
+  toggleRA.textContent = raVisivel ? "Ocultar RA" : "Mostrar RA";
 });
 
 // =========================
@@ -492,3 +494,4 @@ toggleRA?.addEventListener("click", () => {
 // =========================
 atualizarUIUsuario();
 carregarAlunos();
+toggleRA.textContent = "Mostrar RA";
