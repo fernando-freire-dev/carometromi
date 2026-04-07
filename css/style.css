@@ -25,7 +25,7 @@ button {
 
 button:hover { opacity: 0.9; }
 
-.btn-primary { background-color: #2563eb; color: white; }
+.btn-primary { background-color: #0d6efd; color: white; }
 .btn-danger { background-color: #dc2626; color: white; }
 .btn-success { background-color: #16a34a; color: white; }
 .btn-warning { background-color: #f59e0b; color: white; }
@@ -87,7 +87,7 @@ select, input {
   margin-right: 8px;
 }
 
-/* ===== LOGIN ===== */
+/* ===== LOGIN (ESTILO ANTIGO - NÃO USAR MAIS) ===== */
 
 .login-container {
   width: 350px;
@@ -159,8 +159,14 @@ select, input {
 .overlay-foto img {
   max-width: 90vw;
   max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
 
-  .topo-painel {
+/* =========================
+   Estrutura do topo
+========================= */
+.topo-painel {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -209,9 +215,6 @@ select, input {
 .modal .form-group:last-of-type {
   margin-bottom: 0;
 }
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-}
 
 /* =========================
    Botões do topo
@@ -259,7 +262,7 @@ select, input {
 
 .btn-topo-primario,
 #btnLogout {
-  background: #2563eb;
+  background: #0d6efd;
   color: #fff;
 }
 
@@ -277,7 +280,7 @@ select, input {
 }
 
 .modal-header {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: linear-gradient(135deg, #0d6efd, #1e3c72);
   color: #fff;
   padding: 24px 28px 18px;
 }
@@ -332,9 +335,9 @@ select, input {
 
 .modal-aluno .form-group input:focus,
 .modal-aluno .form-group select:focus {
-  border-color: #2563eb;
+  border-color: #0d6efd;
   background: #fff;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.12);
 }
 
 .status-padrao-box {
