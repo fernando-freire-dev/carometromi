@@ -75,6 +75,16 @@ function mostrarMensagem(texto) {
   alert(texto);
 }
 
+//Função de Loading para escolher a turma que deseja visualizar
+function mostrarLoading() {
+  tabelaAlunos.innerHTML = `
+    <div style="text-align:center; padding:30px;">
+      <div class="spinner"></div>
+      <p>Carregando alunos...</p>
+    </div>
+  `;
+}
+
 function preencherSelectTurmas() {
   selectTurma.innerHTML = '<option value="">Todas as Turmas</option>';
 
@@ -144,6 +154,7 @@ async function carregarAlunos() {
     tabelaAlunos.innerHTML = "<p>Selecione o ensino e a turma para visualizar os alunos.</p>";
     return;
   }
+  mostrarLoading(); // 👈 AQUI
   //Código antigo
   let query = supabase
     .from("alunos")
