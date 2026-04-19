@@ -139,6 +139,12 @@ novoEnsino?.addEventListener("change", () => {
 // Carregar alunos
 // =========================
 async function carregarAlunos() {
+  //Forçar escolher a turma
+  if (!selectEnsino?.value || !selectTurma?.value) {
+    tabelaAlunos.innerHTML = "<p>Selecione o ensino e a turma para visualizar os alunos.</p>";
+    return;
+  }
+  //Código antigo
   let query = supabase
     .from("alunos")
     .select("ra, nome, turma, status, ensino")
