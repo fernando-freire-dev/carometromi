@@ -368,7 +368,7 @@ tabelaAlunos?.addEventListener("change", async (event) => {
     }
 
     mostrarMensagem("Foto enviada com sucesso.");
-    carregarAlunos();
+    setTimeout(() => carregarAlunos(), 2000);
 
   } catch (err) {
     console.error("Erro ao enviar foto:", err);
